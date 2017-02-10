@@ -1,0 +1,76 @@
+<ion-header>
+  <ion-navbar color="primary">
+    <ion-title>
+      Lista de Compras
+    </ion-title>
+    
+  </ion-navbar>
+</ion-header>
+
+<ion-content no-padding>
+  
+  <ion-list no-padding reorder="true" (ionItemReorder)="reorderItems($event)">
+    <ion-item-sliding *ngFor="let item of ListaDeCompras" no-padding>
+			<ion-item padding-left padding-right  detail-push>
+          <ion-checkbox (click)="AdicionarAoCarrinho(item)" item-left [(ngModel)]="item.no_carrinho"></ion-checkbox>
+          <ion-label>
+            {{item.nome}}
+          </ion-label>
+          <ion-note item-right>
+            {{item.valor ? " - R$ " + item.valor : "" }} {{item.qtd ?  " - Quantidade:  "+item.qtd : "" }}
+          </ion-note>
+			</ion-item>
+      <ion-item-options  side="right">
+        
+          <button color="esmerald" ion-button (click)="ValorItem(item)">
+              <ion-icon name="logo-usd"></ion-icon>
+              Preço
+          </button>
+
+          <button  ion-button (click)="QuantidadeItem(item)">
+            <ion-icon name="cart"></ion-icon>
+              Qtd.
+          </button>
+
+      </ion-item-options>
+      
+      <ion-item-options side="left" (ionSwipe)="removaItemLista(item)">
+          <button ion-button color="danger" (click)="removaItemLista(item)">
+              <ion-icon name="trash"></ion-icon>
+              Apagar
+          </button>
+      </ion-item-options>
+
+		</ion-item-sliding>
+    <ion-item padding-left padding-right>
+          <ion-icon name="ios-add-outline" item-left></ion-icon>
+          <ion-input (change)="novoItemLista(novoItem)" type="text" [(ngModel)]="novoItem" placeholder="Novo Item"></ion-input>
+	  </ion-item>
+  
+</ion-list>
+
+
+
+
+
+
+
+
+  <ion-fab bottom right >
+
+   <button ion-fab ><ion-icon name="cart"></ion-icon></button>
+
+   <ion-fab-list side="top">
+     <button ion-fab (click)="limparLista()"> <ion-icon name="trash"></ion-icon></button>
+   </ion-fab-list>
+
+   
+ </ion-fab>
+
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-title>Valor Total: {{total_da_compra}}</ion-title>
+  </ion-toolbar>
+</ion-footer>

@@ -1,0 +1,1 @@
+keytool -genkey -v -keystore carrinhodecompras-key.keystore -alias carrinhodecompraskeyandroid -keyalg RSA -keysize 2048 -validity 10000
