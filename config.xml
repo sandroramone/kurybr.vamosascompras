@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<widget id="club.focanocodigo.kurybr.vamosascompras" version="1.2.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="club.focanocodigo.kurybr.vamosascompras" version="1.6.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
   <name>Compras</name>
   <description>Uma forma rápida e pratica para fazer sua lista de compras.</description>
   <author email="hi@ionicframework" href="http://ionicframework.com/">Ionic Framework Team</author>
@@ -42,7 +42,7 @@
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
-  <preference name="android-minSdkVersion" value="16"/>
+  <preference name="android-minSdkVersion" value="19"/>
   <preference name="BackupWebStorage" value="none"/>
   <preference name="SplashMaintainAspectRatio" value="true"/>
   <preference name="FadeSplashScreenDuration" value="300"/>

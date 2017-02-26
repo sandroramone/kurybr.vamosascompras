@@ -4,14 +4,11 @@ import {  NavController
         , AlertController
         , ModalController
         , ToastController
-        } from 'ionic-angular';
+        , Platform} from 'ionic-angular';
 
 import { Storage } from '@ionic/storage';
 
-
-
-
-
+import { AdMob } from 'ionic-native';
 
 @Component({
   selector: 'page-home',
@@ -20,14 +17,17 @@ import { Storage } from '@ionic/storage';
 export class HomePage {
   ListaDeCompras: Array<Object>;
   CarrinhoDeCompras: Array<Object>;
-  total_da_compra: Number;
+  total_da_compra: any;
   novoItem: String;
+  admobId: any;
+
   constructor(
-      public navCtrl: NavController, 
+      public navCtrl: NavController,
       public alertCtrl: AlertController,
       public modalCtrl: ModalController,
       public db: Storage,
-      public toastCtrl: ToastController) {
+      public toastCtrl: ToastController,
+      private platform: Platform) {
 
 
 
@@ -39,10 +39,39 @@ export class HomePage {
 
       this.ListaDeCompras = data || []
     } )
-     
+
     this.CarrinhoDeCompras = [];
     this.total_da_compra = 0;
-    
+
+     this.admobId = {
+            banner: 'ca-app-pub-8038270863375546/',
+            interstitial: 'ca-app-pub-8038270863375546/5307794718'
+    };
+
+     this.platform.ready().then(() => {
+
+
+            if(AdMob) {
+              console.log("rum")
+                AdMob.createBanner({
+                    adId: this.admobId.banner,
+                    autoShow: true
+                }).then(function(){
+                  AdMob.showBanner(AdMob.AD_POSITION.BOTTOM_CENTER);
+                });
+
+
+
+
+                AdMob.prepareInterstitial({
+                    adId: this.admobId.interstitial,
+                    autoShow: true
+                }).then(function(){ AdMob.showInterstitial(); });
+
+            }
+        });
+
+
   }
 
   atualizarCarrinho(){
@@ -50,56 +79,56 @@ export class HomePage {
   }
 
   reorderItems(indexes) {
-    let element = this.ListaDeCompras[indexes.from];
+    var element = this.ListaDeCompras[indexes.from];
     this.ListaDeCompras.splice(indexes.from, 1);
     this.ListaDeCompras.splice(indexes.to, 0, element);
+    this.atualizarCarrinho();
   }
 
   novoItemLista(nome){
 
-    let item = { nome : nome, no_carrinho: false, valor: 0, qtd: 0};
+    var item = { nome : nome, no_carrinho: false, valor: 0, qtd: 1};
     this.ListaDeCompras.push(item);
     this.atualizarCarrinho();
     this.novoItem = "";
-    
+
 	}
 
   removaItemLista(item){
+
     if(item.no_carrinho){
-      if(!isNaN(item.valor) || !isNaN(item.qtd)){ 
-        let valor:any = Number(item.valor * item.qtd);
-        let total:any = Number(this.total_da_compra);
-        this.total_da_compra =  Number(total -  valor.toFixed(2));  
-      }
+
+      this.AdicionarAoCarrinho(item); // Faz o papel de remoção !
+
     }
 
-    let index = this.ListaDeCompras.indexOf(item);
+    var index = this.ListaDeCompras.indexOf(item);
 
-		if(index > -1){      
+		if(index > -1){
 			this.ListaDeCompras.splice(index, 1);
 		}
 
-    let toast = this.toastCtrl.create({
+    var toast = this.toastCtrl.create({
       message: 'Item removido !!',
       duration: 2000,
       showCloseButton: true,
       closeButtonText: `Desfazer`
     });
-    
+
     toast.present();
 
   }
 
 
-  
+
 
 
   limparLista(){
 
     this.ListaDeCompras = [];
     this.db.clear();
-
-    let toast = this.toastCtrl.create({
+    this.total_da_compra = 0;
+    var toast = this.toastCtrl.create({
       message: 'Lista de compras limpa, vamos fazer uma nova ? !!',
       duration: 3000
     });
@@ -109,30 +138,52 @@ export class HomePage {
 
 
   AdicionarAoCarrinho(item){
-    
-      if(isNaN(item.valor) || isNaN(item.qtd)){ return; }
 
-      let valor:any = Number(item.valor * item.qtd);
-      let total:any = Number(this.total_da_compra);
-      
+      if(isNaN(item.valor)
+      || isNaN(item.qtd)
+      || item.valor <= 0
+      || item.qtd <= 0){ return; }
+
+
+      console.log(`Quantidade é ${item.valor} * ${item.qtd}`, item.valor * item.qtd)
+
+      var valor:any = item.valor * item.qtd;
+      var total:any = this.total_da_compra;
+
+      valor = parseFloat(valor);
+      total = parseFloat(total);
+
+
+
+
       if(item.no_carrinho){
-        this.total_da_compra =  Number(total +  valor.toFixed(2));  
+
+        console.log(`Soma ${total} - ${valor} = `,total +  valor);
+        this.total_da_compra =  total +  valor ;
+
       }else{
-        this.total_da_compra =  Number(total -  valor.toFixed(2));  
+
+        console.log(`Subtrai ${total} - ${valor} = `,total -  valor);
+        this.total_da_compra =  total -  valor;
+        this.total_da_compra = this.total_da_compra.toFixed(2);
       }
-      
+
+
+      this.total_da_compra = this.total_da_compra;
+      console.log(this.total_da_compra)
+
   }
 
   ValorItem(item) {
-    
-    let prompt = this.alertCtrl.create({
+
+    var prompt = this.alertCtrl.create({
       title: item.nome,
       message: "Coloque o valor da unidade",
       inputs: [
         {
           name: 'valor',
           placeholder: 'R$ 00,00',
-          value: item.valor,
+          value: item.valor > 0 ? item.valor : "",
           type:"number"
         },
       ],
@@ -143,11 +194,11 @@ export class HomePage {
         {
           text: 'Save',
           handler: data => {
-            let index = this.ListaDeCompras.indexOf(item);
-            item.valor = data.valor
+            var index = this.ListaDeCompras.indexOf(item);
+            item.valor = Number(data.valor);
             // atualizando os dados no carrinho
             this.ListaDeCompras[index] = item;
-            
+            this.atualizarCarrinho();
           }
         }
       ]
@@ -155,18 +206,20 @@ export class HomePage {
     });
 
     prompt.present();
-    
+
   }
+
+
   QuantidadeItem(item){
 
-     let prompt = this.alertCtrl.create({
+     var prompt = this.alertCtrl.create({
       title: item.nome,
       message: "Qual a quantidade",
       inputs: [
         {
           name: 'qtd',
           placeholder: '10',
-          value: item.qtd,
+          value: item.qtd > 0 ? item.qtd : "",
           type:"number"
         },
       ],
@@ -177,11 +230,12 @@ export class HomePage {
         {
           text: 'Save',
           handler: data => {
-            
-            let index = this.ListaDeCompras.indexOf(item);
-            item.qtd = data.qtd
+
+            var index = this.ListaDeCompras.indexOf(item);
+            item.qtd = Number(data.qtd)
             // atualizando os dados no carrinho
             this.ListaDeCompras[index] = item;
+            this.atualizarCarrinho();
           }
         }
       ]
