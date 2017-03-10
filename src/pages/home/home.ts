@@ -32,23 +32,23 @@ export class HomePage {
 
 
     this.ListaDeCompras = [];
+    this.total_da_compra = 0;
 
     this.db.get("ListaDeCompras").then( (data) => {
 
       console.log(data);
 
       this.ListaDeCompras = data || [];
-      
+
       let soma: number = 0;
       for(let i in data){
         soma += data[i].valor * data[i].qtd;
       };
-      
+
       this.total_da_compra = soma;
     } )
 
     this.CarrinhoDeCompras = [];
-    this.total_da_compra = 0;
 
      this.admobId = {
             banner: 'ca-app-pub-8038270863375546/',
@@ -254,5 +254,3 @@ export class HomePage {
   }
 
 }
-
-
