@@ -37,7 +37,14 @@ export class HomePage {
 
       console.log(data);
 
-      this.ListaDeCompras = data || []
+      this.ListaDeCompras = data || [];
+      
+      let soma: number = 0;
+      for(let i in data){
+        soma += data[i].valor * data[i].qtd;
+      };
+      
+      this.total_da_compra = soma;
     } )
 
     this.CarrinhoDeCompras = [];
