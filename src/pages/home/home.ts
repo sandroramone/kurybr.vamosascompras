@@ -42,7 +42,9 @@ export class HomePage {
 
       let soma: number = 0;
       for(let i in data){
-        soma += data[i].valor * data[i].qtd;
+        if (data[i].no_carrinho) {
+          soma += data[i].valor * data[i].qtd;
+        }
       };
 
       this.total_da_compra = soma;
